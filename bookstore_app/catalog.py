@@ -9,9 +9,9 @@ class Catalog:
         self.products[product_id] = {"title": title, "price": price}
 
     def search(self, keyword):
-        """Return a list of product_ids whose title contains the keyword."""
+        """Return a list of product_ids whose title contains the keyword (up to 10)."""
         results = []
         for pid, info in self.products.items():
             if keyword in info["title"]:
                 results.append(pid)
-        return results
+        return results[:10]

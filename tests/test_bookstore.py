@@ -74,6 +74,15 @@ def test_regression_cart_total_sums_all_items():
     # This will fail on the buggy code because of the -1 index skip bug!
     assert c.total() == 30
 
+@pytest.mark.regression
+def test_regression_catalog_search_limit():
+    """Author: Olary. Regression: catalog search should limit results to a maximum of 10."""
+    cat = Catalog()
+    for i in range(15):
+        cat.add_product(i, "Python Book", 100)
+    # This will fail on the buggy code because it returns all 15 results!
+    assert len(cat.search("Python")) <= 10
+
 
 # ---- YOUR SLOW TESTS (at least 2) ----
 
