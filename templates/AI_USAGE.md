@@ -26,7 +26,7 @@ Every AI tool any member used anywhere in this project. Using AI is allowed. Not
 
 | Tool | What we used it for | Where in the project | How we checked it before relying on it |
 |---|---|---|---|
-| GitHub Copilot / LLM | Cross-referencing test structure syntax and structuring markdown documentation | `tests/`, `AI_USAGE.md`, REPORT.md | Manually executed all pytest runs against shipped and fixed codebases to verify empirical accuracy |
+| GitHub Copilot / LLMs | Cross-referencing test structure syntax and structuring markdown documentation | `tests/`, `AI_USAGE.md`, REPORT.md | Manually executed all pytest runs against shipped and fixed codebases to verify empirical accuracy |
 
 ---
 
