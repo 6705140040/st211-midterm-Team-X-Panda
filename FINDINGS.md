@@ -17,7 +17,7 @@
 - **What we observed:** The total only counted the first item. It skipped the last one (`assert 10 == 30`).
 - **What we expected instead:** The sum of all items in the cart, which is 30.
 - **The fix:** The loop was `for i in range(len(self.items) - 1):`. It stopped one item too early. We changed it to `for pid in self.items:`.
-- **Author of this finding:** Ivan & Hubert
+- **Author of this finding:** Ivan
 
 ---
 
