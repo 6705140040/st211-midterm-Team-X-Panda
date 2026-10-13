@@ -74,6 +74,14 @@ def test_regression_cart_total_sums_all_items():
     # This will fail on the buggy code because of the -1 index skip bug!
     assert c.total() == 30
 
+@pytest.mark.regression
+def test_regression_user_login_with_symbols():
+    """Author: Chan. Regression: login should support passwords with special characters/symbols."""
+    u = Users()
+    u.register("bob", "p@ssword123!")
+    # This will fail on the buggy code because login strips out '@' and '!' via isalnum()!
+    assert u.login("bob", "p@ssword123!") is True
+
 
 # ---- YOUR SLOW TESTS (at least 2) ----
 
