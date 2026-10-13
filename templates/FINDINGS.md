@@ -39,7 +39,7 @@
 - **What we observed:** An empty cart returned `[]`. This caused `AssertionError: assert [] is None`.
 - **What we expected instead:** `None` for an empty cart.
 - **The fix:** We added a check at the start of the method: `if not self.items: return None`.
-- **Author of this finding:** Chan & Aye
+- **Author of this finding:** HuBeRt - HZL
 
 ---
 
