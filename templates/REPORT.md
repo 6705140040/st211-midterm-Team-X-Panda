@@ -62,9 +62,18 @@ Members:
 ---
 
 ## Part F -- Team reflection
-1. Why is running only regression tests before every commit inefficient?
-2. Why do smoke tests usually run first in a CI/CD pipeline?
-3. What risks arise if slow tests are never run?
-4. Can one test belong to two categories? Give an example.
-5. Bug-finders and bug-fixers are often different people in a real QA team.
-   What does that separation change about how a bug report must be written?
+
+1. **Why is running only regression tests before every commit inefficient?**  
+   Regression tests cover historical bug fixes, complex edge cases, and comprehensive component interactions, making the test suite expansive. Running a massive regression suite for every tiny, isolated code tweak slows down developer velocity and feedback loops unnecessarily when quick smoke tests would suffice.
+
+2. **Why do smoke tests usually run first in a CI/CD pipeline?**  
+   Smoke tests are fast, lightweight checks that validate core system stability. Running them first acts as an immediate gatekeeper; if the build is fundamentally broken, the pipeline fails early, saving valuable computing resources and time instead of executing deep, complex test suites on a broken build.
+
+3. **What risks arise if slow tests are never run?**  
+   Skipping slow tests risks missing performance degradation, memory leaks, concurrency bottlenecks, or scaling bugs that only manifest under heavy data volume or time-delayed operations. Over time, codebases can quietly accumulate inefficiencies that break production performance under high load.
+
+4. **Can one test belong to two categories? Give an example.**  
+   Yes, tests frequently overlap categories depending on their function and execution profile. For example, a test checking that a bulk import processes 50 products correctly and returns the exact count can be categorized as both a **Regression** test (ensuring the count + 1 offset bug doesn't return) and a **Slow** test (because processing large product batches takes measurable time).
+
+5. **Bug-finders and bug-fixers are often different people in a real QA team. What does that separation change about how a bug report must be written?**  
+   Because the developer fixing the bug did not discover it firsthand, the bug report must be exceptionally objective, descriptive, and reproducible. It requires precise steps to reproduce, clear expected versus observed behaviors, environment specifications, and failure traces (similar to detective notes) so the fixer can diagnose the root cause without guessing context or intent.
