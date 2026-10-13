@@ -75,12 +75,22 @@ def test_regression_cart_total_sums_all_items():
     assert c.total() == 30
 
 @pytest.mark.regression
+<<<<<<< HEAD
 def test_regression_user_login_with_symbols():
     """Author: Chan. Regression: login should support passwords with special characters/symbols."""
     u = Users()
     u.register("bob", "p@ssword123!")
     # This will fail on the buggy code because login strips out '@' and '!' via isalnum()!
     assert u.login("bob", "p@ssword123!") is True
+=======
+def test_regression_catalog_search_limit():
+    """Author: Olary. Regression: catalog search should limit results to a maximum of 10."""
+    cat = Catalog()
+    for i in range(15):
+        cat.add_product(i, "Python Book", 100)
+    # This will fail on the buggy code because it returns all 15 results!
+    assert len(cat.search("Python")) <= 10
+>>>>>>> c4c1836a5f578be7403bcecb5ace48b30aef6fe0
 
 
 # ---- YOUR SLOW TESTS (at least 2) ----

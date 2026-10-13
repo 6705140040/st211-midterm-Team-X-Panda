@@ -15,3 +15,4 @@ def test_word_count_counts_words_not_characters():
     n.add("testing")          # 1 word,  7 characters
     # correct total is 3 words; the shipped code returns 18 (characters)
     assert n.word_count() == 3
+    
