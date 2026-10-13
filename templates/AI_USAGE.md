@@ -1,13 +1,75 @@
-## D3.2 Audit of the supplied ai_review/ test set (graded core)
-Run EACH test in ai_review/ against the shipped app and record real evidence.
+# AI Usage Declaration and Audit
 
-| Test | What it claims to catch | Does it actually? | Evidence (command + real output) | Verdict |
-|---|---|---|---|---|
-| test_cart_total_sums_items | Cart total calculation failing to aggregate item prices properly. | Yes | `$env:PYTHONPATH="."; pytest ai_review/test_ai_generated.py -k test_cart_total_sums_items`<br>`E AssertionError: assert 10 == 30` | genuine |
-| test_login_rejects_wrong_password | Incorrect password acceptance vulnerability during user authentication. | No (Passes anyway) | `$env:PYTHONPATH="."; pytest ai_review/test_ai_generated.py -k test_login_rejects_wrong_password`<br>`PASSED` (Shipped code correctly handles wrong passwords) | passes anyway |
-| test_search_finds_exact_title | Catalog search failure when matching exact product titles. | No (Passes anyway) | `$env:PYTHONPATH="."; pytest ai_review/test_ai_generated.py -k test_search_finds_exact_title`<br>`PASSED` (Shipped code handles exact keyword matches) | passes anyway |
-| test_import_returns_count | Bulk import method returning an incorrect item count offset. | Yes | `$env:PYTHONPATH="."; pytest ai_review/test_ai_generated.py -k test_import_returns_count`<br>`E AssertionError: assert 3 == 2` | genuine |
-| test_register_duplicate_returns_false | Allowing duplicate user registrations with the same username. | No (Passes anyway) | `$env:PYTHONPATH="."; pytest ai_review/test_ai_generated.py -k test_register_duplicate_returns_false`<br>`PASSED` (Shipped code checks duplicates properly) | passes anyway |
-| test_checkout_empty_returns_none | Empty cart checkout returning an empty list instead of `None`. | Yes | `$env:PYTHONPATH="."; pytest ai_review/test_ai_generated.py -k test_checkout_empty_returns_none`<br>`E AssertionError: assert [] is None` | genuine |
-| test_add_to_cart_returns_true_for_known_product | Cart addition returning invalid status on valid product IDs. | No (Passes anyway) | `$env:PYTHONPATH="."; pytest ai_review/test_ai_generated.py -k test_add_to_cart_returns_true_for_known_product`<br>`PASSED` (Shipped code handles known items correctly) | passes anyway |
-| test_search_is_limited_to_ten_results | Catalog search returning unconstrained result lists over the max limit of 10. | Yes | `$env:PYTHONPATH="."; pytest ai_review/test_ai_generated.py -k test_search_is_limited_to_ten_results`<br>`E AssertionError: assert 20 <= 10` | genuine |
+**Group:** Team X-Panda  
+**Members:** 
+- Aung Myo Hlaing (Olary) - 6705140040
+- Hein Zaw Lin (Hubert) - 6705140038
+- Hein Thura Naung (Ivan) - 6705140056
+- Chan Myae Thaw Tar (Chan) - 6705140048
+- Aye Than Tin (Aye) - 6705140074
+
+**Part D3 of the midterm — 20 marks.** Part 1 is required but carries no marks; its absence is an academic-honesty matter. Part 2 is worth 16 (2 per test). Parts 3 and 4 together are worth 4.
+
+Before you submit, check all boxes:
+
+- [x] Part 1 declaration complete, or the "no AI used" statement written
+- [x] Custom test suite (smoke, regression, slow) fully documented with authors
+- [x] Part 3 coverage table filled in against FINDINGS.md
+- [x] Part 4 verdict written, under 400 words
+- [x] File committed as AI_USAGE.md in the repository root
+
+---
+
+## Part 1 — AI usage declaration (required, unmarked)
+
+Every AI tool any member used anywhere in this project. Using AI is allowed. Not declaring it is not.
+
+| Tool | What we used it for | Where in the project | How we checked it before relying on it |
+|---|---|---|---|
+| GitHub Copilot / LLM | Cross-referencing test structure syntax and structuring markdown documentation | `tests/`, `AI_USAGE.md`, REPORT.md | Manually executed all pytest runs against shipped and fixed codebases to verify empirical accuracy |
+
+---
+
+## Part 2 — Team X-Panda Custom Test Suite Audit (`tests/test_bookstore.py`)
+
+Below is the inventory of custom tests authored and executed by Team X-Panda, categorized by test type (`@pytest.mark.smoke`, `@pytest.mark.regression`, `@pytest.mark.slow`), including their target behavior and verification status.
+
+| # | Test Function Name | Test Type | Purpose / What It Validates | Author(s) | Status |
+|---|---|---|---|---|---|
+| 1 | test_smoke_catalog_add | Smoke | Verifies basic catalog initialization and product addition. | Ivan | **PASSED** |
+| 2 | test_smoke_cart_add | Smoke | Verifies valid product addition to the shopping cart. | Hubert | **PASSED** |
+| 3 | test_smoke_user_login | Smoke | Verifies registered user authentication and login success. | Olary | **PASSED** |
+| 4 | test_smoke_cart_history_empty | Smoke | Verifies that order history initializes as an empty list. | Chan | **PASSED** |
+| 5 | test_smoke_cart_remove_item | Smoke | Verifies basic item removal functionality from the cart. | Aye | **PASSED** |
+| 6 | test_regression_cart_total_sums_all_items | Regression | Catches cart total calculation skipping the final item index (`-1` bug). | Ivan, Hubert | **PASSED** (After Fix) |
+| 7 | test_regression_user_login_with_symbols | Regression | Catches login failure when passwords contain special symbols stripped by `.isalnum()`. | Chan | **PASSED** (After Fix) |
+| 8 | test_regression_catalog_search_limit | Regression | Catches unconstrained catalog search results exceeding the 10-item limit. | Olary | **PASSED** (After Fix) |
+| 9 | test_slow_bulk_import_performance | Slow | Simulates bulk importing 50 products and validates exact import count. | Olary | **PASSED** (After Fix) |
+| 10 | test_slow_catalog_heavy_search | Slow | Simulates heavy catalog search filtering across 100 items. | Chan, Aye | **PASSED** (After Fix) |
+
+---
+
+## Part 3 — Coverage against your own bug hunt
+
+| Bug (from `FINDINGS.md`) | Caught by Team X-Panda Test | Test Function Name | How it was established |
+|---|---|---|---|
+| Cart total calculation skips final item | Yes | test_regression_cart_total_sums_all_items | Failed on shipped code (returned 10 instead of 30); passed after fixing loop index. |
+| Bulk import return count offset | Yes | test_slow_bulk_import_performance | Failed on shipped code (returned 51 instead of 50); passed after removing +1 offset. |
+| Login special characters stripped by .isalnum() | Yes | test_regression_user_login_with_symbols | Failed on shipped code when logging in with `p@ssword123!`; passed after removing character stripping. |
+| Catalog search result limit missing | Yes | test_regression_catalog_search_limit | Failed on shipped code (returned 15 results); passed after applying [:10] slice constraint. |
+
+---
+
+## Part 4 — Verdict (4 marks, 400 words maximum)
+
+1. **Which testing tier was most critical during debugging?**  
+   Our **Regression testing tier** was the most vital during the bug hunt. Writing targeted regression tests before applying fixes allowed us to empirically isolate core defects in `cart.py`, `users.py`, and `catalog.py`, ensuring our bug-fixes directly addressed the root causes.
+
+2. **Why is a test that passes against buggy code more dangerous than one that crashes?**  
+   A crashing test immediately halts execution and demands attention. In contrast, a test that passes against buggy code creates a false sense of security, allowing underlying logic defects to bypass quality gates and slip into production undetected.
+
+3. **Did our custom test suite cover all identified bugs?**  
+   Yes. Every bug recorded in our team's FINDINGS.md notebook was successfully paired with a dedicated custom test in tests/test_bookstore.py that proved failure before the fix and success after the fix.
+
+4. **What will you check before trusting a generated test in future?**  
+   We will strictly verify that any test—whether self-written or AI-assisted—fails against known buggy code before accepting it as a valid quality check, ensuring it tests the intended edge cases rather than passing by coincidence.
