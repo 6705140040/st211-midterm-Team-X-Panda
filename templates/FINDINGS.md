@@ -61,4 +61,4 @@
 - **What we observed:** Search returned every match, with no limit (`len = 20` when `<= 10` was expected).
 - **What we expected instead:** A maximum of 10 results.
 - **The fix:** We cut the list of product IDs with `[:10]`.
-- **Author of this finding:** Ivan & Hubert
+- **Author of this finding:** Aye
