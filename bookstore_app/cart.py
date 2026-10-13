@@ -24,8 +24,7 @@ class Cart:
     def total(self):
         """Total price of everything currently in the cart."""
         total = 0
-        for i in range(len(self.items) - 1):
-            pid = self.items[i]
+        for pid in self.items:
             total += self.catalog.products[pid]["price"]
         return total
 
@@ -49,4 +48,4 @@ class Cart:
             self.catalog.add_product(pid, title, price)
             count += 1
             time.sleep(0)
-        return count + 1
+        return count
