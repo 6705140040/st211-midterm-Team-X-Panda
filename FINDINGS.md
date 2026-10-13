@@ -50,7 +50,7 @@
 - **What we observed:** Login removed all non-letter and non-number characters with `.isalnum()`. So passwords with symbols never matched.
 - **What we expected instead:** Login should work with passwords that have symbols.
 - **The fix:** We removed the `cleaned` variable that stripped the characters. Now the original password is compared with the saved one.
-- **Author of this finding:** Ivan
+- **Author of this finding:** Chan
 
 ---
 
