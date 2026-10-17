@@ -1,4 +1,4 @@
-# Bug-Hunt Findings Log
+# Bug-Hunt Findings Log test
 
 **Group:** Team X-Panda
 **Members:**
