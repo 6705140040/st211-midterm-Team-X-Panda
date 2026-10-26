@@ -51,12 +51,15 @@ Below is the inventory of custom tests authored and executed by Team X-Panda, ca
 
 ## Part 3 — Coverage against your own bug hunt
 
-| Bug (from `FINDINGS.md`) | Caught by Team X-Panda Test | Test Function Name | How it was established |
+| Bug (from `FINDINGS.md`) | Caught by Team X-Panda Test? | Test Function Name | How it was established |
 |---|---|---|---|
-| Cart total calculation skips final item | Yes | test_regression_cart_total_sums_all_items | Failed on shipped code (returned 10 instead of 30); passed after fixing loop index. |
-| Bulk import return count offset | Yes | test_slow_bulk_import_performance | Failed on shipped code (returned 51 instead of 50); passed after removing +1 offset. |
-| Login special characters stripped by .isalnum() | Yes | test_regression_user_login_with_symbols | Failed on shipped code when logging in with `p@ssword123!`; passed after removing character stripping. |
-| Catalog search result limit missing | Yes | test_regression_catalog_search_limit | Failed on shipped code (returned 15 results); passed after applying [:10] slice constraint. |
+| Cart total calculation skips the final item | Yes | `test_regression_cart_total_sums_all_items` | Failed on the shipped code because the total was 10 instead of 30. Passed after fixing the loop. |
+| Bulk import return count is one too high | Yes | `test_slow_bulk_import_performance` | Failed on the shipped code because it returned 51 instead of 50. Passed after removing the extra `+ 1`. |
+| Empty cart checkout returns an empty list instead of `None` | Verify against the custom test suite | `test_checkout_empty_returns_none` | Failed because checkout returned `[]` instead of `None`. Passed after adding an empty-cart check. |
+| Login fails when passwords contain special characters | Yes | `test_regression_user_login_with_symbols` | Failed when logging in with `p@ssword123!`. Passed after removing the character-stripping logic. |
+| Catalog search does not limit results to 10 | Yes | `test_regression_catalog_search_limit` | Failed because the search returned more than 10 results. Passed after limiting the returned product IDs to 10. |
+
+
 
 ---
 
