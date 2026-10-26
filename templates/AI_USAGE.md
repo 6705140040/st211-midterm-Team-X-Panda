@@ -65,14 +65,19 @@ Below is the inventory of custom tests authored and executed by Team X-Panda, ca
 
 ## Part 4 — Verdict (4 marks, 400 words maximum)
 
-1. **Which testing tier was most critical during debugging?**  
-   Our **Regression testing tier** was the most vital during the bug hunt. Writing targeted regression tests before applying fixes allowed us to empirically isolate core defects in `cart.py`, `users.py`, and `catalog.py`, ensuring our bug-fixes directly addressed the root causes.
 
-2. **Why is a test that passes against buggy code more dangerous than one that crashes?**  
-   A crashing test immediately halts execution and demands attention. In contrast, a test that passes against buggy code creates a false sense of security, allowing underlying logic defects to bypass quality gates and slip into production undetected.
+**1. Which testing tier was most critical during debugging?**
 
-3. **Did our custom test suite cover all identified bugs?**  
-   Yes. Every bug recorded in our team's FINDINGS.md notebook was successfully paired with a dedicated custom test in tests/test_bookstore.py that proved failure before the fix and success after the fix.
+Our regression testing tier was the most critical because it helped us identify specific bugs and check whether our fixes worked. The tests for cart totals, login passwords, and catalog search showed the incorrect behavior before the fixes and helped us verify the corrected behavior afterward.
 
-4. **What will you check before trusting a generated test in future?**  
-   We will strictly verify that any test—whether self-written or AI-assisted—fails against known buggy code before accepting it as a valid quality check, ensuring it tests the intended edge cases rather than passing by coincidence.
+**2. Why is a test that passes against buggy code more dangerous than one that crashes?**
+
+A test that crashes shows that something may be wrong and needs attention. However, a test that passes against buggy code can give developers false confidence that the program works correctly. As a result, bugs may remain undetected.
+
+**3. Did our custom test suite cover all identified bugs?**
+
+Our findings log records five bugs. Four are explicitly listed in our current custom test inventory. We need to verify whether the empty-cart checkout test is also included in `tests/test_bookstore.py` before claiming that our custom suite covers all five bugs.
+
+**4. What will you check before trusting a generated test in future?**
+
+We will check whether the test covers the intended behavior and fails against the buggy version of the code. We will then run it against the fixed version to confirm that it passes. This helps us avoid tests that pass without detecting the actual problem.
