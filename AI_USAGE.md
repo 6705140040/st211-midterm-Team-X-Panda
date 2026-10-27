@@ -1,299 +1,192 @@
 # AI Usage Declaration and Audit
 
-*Group:* Team X-Panda
+**Group:** _____________________  **Members:** _____________________________
 
-*Members:*
-
-- Aung Myo Hlaing (Olary) - 6705140040
-- Hein Zaw Lin (Hubert) - 6705140038
-- Hein Thura Naung (Ivan) - 6705140056
-- Chan Myae Thaw Tar (Chan) - 6705140048
-- Aye Than Tin (Aye) - 6705140074
-
-*Part D3 of the midterm — 20 marks.* Part 1 is required but carries no marks;
+**Part D3 of the midterm — 20 marks.** Part 1 is required but carries no marks;
 its absence is an academic-honesty matter. Part 2 is worth 16 (2 per test).
 Parts 3 and 4 together are worth 4.
 
 Before you submit, check all eight boxes:
 
-- [x] Part 1 declaration complete.
-- [x] All eight tests appear in the summary table with a verdict.
-- [x] All eight tests have evidence from shipped and fixed code.
-- [x] Part 3 coverage table filled in against `FINDINGS.md`.
-- [x] Part 4 verdict written, under 400 words.
-- [x] Every audit entry names the member who did it.
-- [x] Claims are supported by the pytest runs recorded below.
-- [ ] File committed as `AI_USAGE.md` in the repository root.
+- [ ] Part 1 declaration complete, or the "no AI used" statement written
+- [ ] All eight tests appear in the summary table with a verdict
+- [ ] All eight have **two** pasted evidence runs (shipped code, and your fixed code)
+- [ ] Part 3 coverage table filled in against `FINDINGS.md`
+- [ ] Part 4 verdict written, under 400 words
+- [ ] Every audit entry names the member who did it
+- [ ] No claim made that you cannot demonstrate from pasted output
+- [ ] File committed as `AI_USAGE.md` in the repository root
 
 ---
 
 ## Part 1 — AI usage declaration (required, unmarked)
 
-Every AI tool any member used anywhere in this project should be declared.
-Using AI is allowed. Not declaring it is not.
+Every AI tool any member used anywhere in this project. Using AI is allowed.
+Not declaring it is not.
 
 | Tool | What we used it for | Where in the project | How we checked it before relying on it |
 |---|---|---|---|
-| Codex / LLM Assistant | Helped plan catalog smoke and regression tests, review search fixes and workflow scripts, and structure test-audit documentation. | `tests/test_bookstore.py`, `FINDINGS.md`, `AI_USAGE.md`, `REPORT.md` | Reviewed suggestions manually and ran pytest against the original and fixed application versions to check regression behavior. |
-| GitHub Copilot (Copilot SDK) | Helped format and organize this audit and compare supplied test results across original and fixed revisions. | `AI_USAGE.md`, `templates/AI_USAGE.md`, `ai_review/test_ai_generated.py` | Compared the audit with repository history and project findings, and ran each supplied test individually against the original and fixed versions. |
+| *example:* Copilot | completing test boilerplate | `tests/test_bookstore.py` | ran each test against the shipped code and confirmed it failed for the reason we expected |
+| | | | |
+| | | | |
 
-If any AI tools were used but are not listed here, add them before submission.
+If you kept prompts worth showing, add them in an appendix at the end of this
+file. Do not paste whole conversations.
+
+If no AI tools were used anywhere, write this instead of the table:
+
+> No AI tools were used in this project. All tests, bug investigation and fixes
+> were produced by the group.
 
 ---
 
 ## Part 2 — Audit of the supplied test set (16 marks)
 
-The supplied tests are in `ai_review/test_ai_generated.py`. The shipped-code
-run used an isolated extraction of original commit `53beb74`. The fixed-code
-run used the current project checkout.
+`ai_review/test_ai_suggested.py` contains eight tests presented as a finished
+AI bug hunt for this bookstore. They are confident and they are not all
+correct. Your job is to establish, for each one, what it actually does.
 
-### Summary table
+### How to classify a test
+
+A single test run cannot tell you. "Fails against the buggy code" does **not**
+mean the test found a bug — a test demanding behaviour the application was
+never meant to have also fails. You need two runs, and the pair of results is
+what identifies the category:
+
+| Shipped Code | Fixed Code | What This Tells You | Verdict |
+|---|---|---|---|
+| ❌ FAIL | ✅ PASS | The test failed when the bug existed and passed after the bug was fixed. It successfully detected a real defect. | **Genuine detection** |
+| ✅ PASS | ✅ PASS | The test passed before and after the fix. It never noticed the bug, so it provides false confidence. | **Detects nothing** |
+| ✅ PASS | ❌ FAIL | The test expected the buggy behaviour. After the bug was fixed, the test broke. | **Locks in the bug** |
+| ❌ FAIL | ❌ FAIL | The test failed both before and after the fix. It is testing something unrelated to the bug, or a requirement that does not exist. | **Invented requirement** |
+
+The third row is the one to think hardest about. A test that locks in a bug is
+worse than one that detects nothing: a team that trusts its suite will see the
+test go red after a correct fix, conclude the fix was wrong, and revert it. The
+bug then has a test defending it.
+
+### How to produce the evidence
+
+Run each test twice — once with the application as you received it, once with
+your fixes in place. If you have already fixed the code, you can get back to
+the shipped state with git:
+
+```bash
+# your fixed code
+pytest ai_review/test_ai_suggested.py -v | tee /tmp/fixed.txt
+
+# the code as it was shipped (replace <sha> with your first commit)
+git stash
+git checkout <sha> -- bookstore_app/
+pytest ai_review/test_ai_suggested.py -v | tee /tmp/shipped.txt
+git checkout HEAD -- bookstore_app/
+git stash pop
+```
+
+Paste the real output. Not a screenshot, not a retyped summary — the text.
+
+### Marks, per test
+
+| | marks |
+|---|---|
+| Correct verdict | 1 |
+| Both evidence runs pasted, showing the outcome you claim | 1 |
+
+**A claim you cannot demonstrate costs a mark.** If you assert a test is broken
+and the output does not support it, you lose more than you would have gained by
+leaving the row blank. Check before you write.
+
+### Summary table — fill this in first
 
 | # | Test | What it claims to catch | Shipped | Fixed | Verdict | Auditor |
 |---|---|---|---|---|---|---|
-| 1 | `test_cart_total_sums_items` | Checks that the cart total includes all items. | FAIL | PASS | Genuine detection | Hein Thura Naung (Ivan) |
-| 2 | `test_login_rejects_wrong_password` | Checks that login rejects an incorrect password. | PASS | PASS | Detects nothing | Aung Myo Hlaing (Olary) |
-| 3 | `test_search_finds_exact_title` | Search finds a product by its exact title. | PASS | PASS | Detects nothing | Hein Zaw Lin (Hubert) |
-| 4 | `test_import_returns_count` | Checks that bulk import returns the number of products imported. | FAIL | PASS | Genuine detection | Chan Myae Thaw Tar (Chan) |
-| 5 | `test_register_duplicate_returns_false` | Checks that registering a duplicate username returns `False`. | PASS | PASS | Detects nothing | Aye Than Tin (Aye) |
-| 6 | `test_checkout_empty_returns_none` | Checks that checking out an empty cart returns `None`. | FAIL | PASS | Genuine detection | Hein Thura Naung (Ivan) |
-| 7 | `test_add_to_cart_returns_true_for_known_product` | Checks that adding a known product to the cart returns `True`. | PASS | PASS | Detects nothing | Aung Myo Hlaing (Olary) |
-| 8 | `test_search_is_limited_to_ten_results` | Claims that catalog search should return no more than ten matches. | FAIL | PASS | Genuine detection | Hein Zaw Lin (Hubert) |
+| 1 | | | | | | |
+| 2 | | | | | | |
+| 3 | | | | | | |
+| 4 | | | | | | |
+| 5 | | | | | | |
+| 6 | | | | | | |
+| 7 | | | | | | |
+| 8 | | | | | | |
 
 ### Detail entries
 
-#### Test: `test_cart_total_sums_items` (`ai_review/test_ai_generated.py:10`)
-
-*Audited by:* Hein Thura Naung — Ivan
-
-*1. What it claims to catch.*
-
-The cart total should include the prices of all items.
-
-*2. Evidence — against the shipped code*
-
-Run location: isolated extraction of original commit `53beb74`.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_cart_total_sums_items`
-
-```text
-F                                                                        [100%]
-E   assert 10 == 30
-FAILED ai_review/test_ai_generated.py::test_cart_total_sums_items - assert 10...
-1 failed in 0.17s
-```
-
-*3. Evidence — against your fixed code*
-
-Run location: current project checkout.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_cart_total_sums_items`
-
-```text
-.                                                                        [100%]
-1 passed in 0.02s
-```
-
-*4. What that pair proves.*
-
-The test fails on the shipped code because the final cart item was omitted
-from the total. It passes after the total loop was fixed.
-
-*5. Verdict*
-
-- [x] Genuine detection — FAIL then PASS
+Copy the block below once for each of the eight tests. Do not paste the test
+code — it is in the repository and identical for everyone. Reference it by name
+and line instead.
 
 ---
 
-#### Test: `test_login_rejects_wrong_password` (`ai_review/test_ai_generated.py:17`)
+#### Test: `test_<function_name>`  (`ai_review/test_ai_suggested.py:<line>`)
 
-*Audited by:* Aung Myo Hlaing — Olary
+**Audited by:** _______________
 
-*1. What it claims to catch.*
+**1. What it claims to catch.** One or two sentences, in your own words, from
+its name and docstring.
 
-Login should reject an incorrect password.
-
-*2. Evidence — against the shipped code*
-
-Run location: isolated extraction of original commit `53beb74`.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_login_rejects_wrong_password`
+**2. Evidence — against the shipped code**
 
 ```text
-.                                                                        [100%]
-1 passed in 0.02s
+<paste the pytest output for this test>
 ```
 
-*3. Evidence — against your fixed code*
-
-Run location: current project checkout.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_login_rejects_wrong_password`
+**3. Evidence — against your fixed code**
 
 ```text
-.                                                                        [100%]
-1 passed in 0.02s
+<paste the pytest output for this test>
 ```
 
-*4. What that pair proves.*
+**4. What that pair proves.** Name the row of the classification table you
+landed on and say why. If the verdict is "detects nothing" or "locks in the
+bug", identify the specific weakness — which assertion, and what it would have
+had to say instead. If it is "invented requirement", say where in the
+application's behaviour you established that the requirement does not exist.
 
-The test passes on both versions. It uses a completely different password and
-does not detect the special-character password bug.
+**5. Verdict** (tick one)
 
-*5. Verdict*
-
-- [x] Detects nothing — PASS then PASS
+- [ ] Genuine detection — FAIL then PASS
+- [ ] Detects nothing — PASS then PASS
+- [ ] Locks in the bug — PASS then FAIL
+- [ ] Invented requirement — FAIL then FAIL
 
 ---
 
-#### Test: `test_search_finds_exact_title` (`ai_review/test_ai_generated.py:25`)
+## Part 3 — Coverage against your own bug hunt
 
-*Audited by:* Hein Zaw Lin — Hubert
+One row per bug you recorded in `FINDINGS.md`, plus a row for any bug the
+supplied set caught that you had not found yourself.
 
-*1. What it claims to catch.*
+| Bug (your description) | We found it | The supplied set catches it | Which test, and how you established that |
+|---|---|---|---|
+| | | | |
+| | | | |
+| | | | |
 
-Search should find a product when given its exact title.
-
-*2. Evidence — against the shipped code*
-
-Run location: isolated extraction of original commit `53beb74`.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_search_finds_exact_title`
-
-```text
-.                                                                        [100%]
-1 passed in 0.02s
-```
-
-*3. Evidence — against your fixed code*
-
-Run location: current project checkout.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_search_finds_exact_title`
-
-```text
-.                                                                        [100%]
-1 passed in 0.02s
-```
-
-*4. What that pair proves.*
-
-The exact-title search passes on both versions. It does not expose the separate
-search-limit defect, which is tested by `test_search_is_limited_to_ten_results`.
-
-*5. Verdict*
-
-- [x] Detects nothing — PASS then PASS
+This is a factual cross-reference, not an opinion. Every "yes" in the third
+column must point at a test you classified as a genuine detection in Part 2.
 
 ---
 
-#### Test: `test_import_returns_count` (`ai_review/test_ai_generated.py:31`)
+## Part 4 — Verdict (4 marks, 400 words maximum)
 
-*Audited by:* Chan Myae Thaw Tar — Chan
+Four questions. Be specific and cite your own table.
 
-*1. What it claims to catch.*
+1. **Which failure mode was most common** in the supplied set? Give the count
+   from your summary table.
+2. **Why is a test that passes against buggy code more dangerous than one that
+   crashes?** A crashing test gets attention. Say what happens to the other
+   kind.
+3. **Did the supplied set catch anything you had missed?** If yes, what, and
+   what would have led you to it. If no, say so — that is a legitimate answer
+   and does not cost marks.
+4. **What will you check before trusting a generated test in future?** Name
+   checks you actually performed in this exercise, not general principles.
 
-Bulk import should return the number of products imported.
-
-*2. Evidence — against the shipped code*
-
-Run location: isolated extraction of original commit `53beb74`.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_import_returns_count`
-
-```text
-F                                                                        [100%]
-E   AssertionError: assert 3 == 2
-FAILED ai_review/test_ai_generated.py::test_import_returns_count - AssertionE...
-1 failed in 0.16s
-```
-
-*3. Evidence — against your fixed code*
-
-Run location: current project checkout.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_import_returns_count`
-
-```text
-.                                                                        [100%]
-1 passed in 0.02s
-```
-
-*4. What that pair proves.*
-
-The test fails on the shipped code and passes after the extra increment was
-removed. The shipped implementation reported one more product than it imported.
-
-*5. Verdict*
-
-- [x] Genuine detection — FAIL then PASS
+Answers that could have been written about any project score half marks at
+best.
 
 ---
 
-#### Test: `test_register_duplicate_returns_false` (`ai_review/test_ai_generated.py:38`)
+## Appendix (optional)
 
-*Audited by:* Aye Than Tin — Aye
-
-*1. What it claims to catch.*
-
-Registering a duplicate username should return `False`.
-
-*2. Evidence — against the shipped code*
-
-Run location: isolated extraction of original commit `53beb74`.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_register_duplicate_returns_false`
-
-```text
-.                                                                        [100%]
-1 passed in 0.02s
-```
-
-*3. Evidence — against your fixed code*
-
-Run location: current project checkout.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_register_duplicate_returns_false`
-
-```text
-.                                                                        [100%]
-1 passed in 0.02s
-```
-
-*4. What that pair proves.*
-
-Duplicate registration already returned `False` in the shipped version. This
-test passes on both versions and does not detect a bug fixed by the group.
-
-*5. Verdict*
-
-- [x] Detects nothing — PASS then PASS
-
----
-
-#### Test: `test_checkout_empty_returns_none` (`ai_review/test_ai_generated.py:44`)
-
-*Audited by:* Hein Thura Naung — Ivan
-
-*1. What it claims to catch.*
-
-Checking out an empty cart should return `None`.
-
-*2. Evidence — against the shipped code*
-
-Run location: isolated extraction of original commit `53beb74`.
-
-Command: `py -m pytest -q --tb=short ai_review\test_ai_generated.py::test_checkout_empty_returns_none`
-
-```text
-F                                                                        [100%]
-E   assert [] is None
-FAILED ai_review/test_ai_generated.py::test_checkout_empty_returns_none - ass...
-1 failed in 0.14s
-```
-
-*3. Evidence — against your fixed code*
-
-Run location: current project checkout.
-
-Command: `py -m pytest -q --tb=short ai_review\
+Prompts, or notes on AI use, that support Part 1.
