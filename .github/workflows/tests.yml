@@ -7,7 +7,8 @@ name: tests
 
 on:
   push:
-  # TODO: add a scheduled nightly trigger (hint: 'schedule:' with a cron entry)
+  schedule:
+    - cron: '0 0 * * *'  # Runs nightly at midnight UTC
 
 jobs:
   smoke:
@@ -18,5 +19,12 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - run: pytest -m smoke
-      # TODO: add a job (or step) that runs the full suite on the nightly schedule
+      - name: Run Smoke Tests on Push or Full Suite on Schedule
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "Running full test suite for scheduled nightly run..."
+            pytest
+          else
+            echo "Running smoke tests for push..."
+            pytest -m smoke
+          fi
