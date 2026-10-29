@@ -8,10 +8,11 @@ name: tests
 on:
   push:
   schedule:
-    - cron: '0 0 * * *'  # Runs nightly at midnight UTC
+    - cron: "0 18 * * *" # 18:00 UTC = 01:00 the next day in Bangkok
 
 jobs:
   smoke:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,12 +20,15 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - name: Run Smoke Tests on Push or Full Suite on Schedule
-        run: |
-          if [ "${{ github.event_name }}" == "schedule" ]; then
-            echo "Running full test suite for scheduled nightly run..."
-            pytest
-          else
-            echo "Running smoke tests for push..."
-            pytest -m smoke
-          fi
+      - run: pytest -m smoke
+
+  full:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: pytest
