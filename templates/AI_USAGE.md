@@ -23,7 +23,7 @@ Before you submit, check all eight boxes:
 - [x] Part 4 verdict written, under 400 words.
 - [x] Every audit entry names the member who did it.
 - [x] Claims are supported by the pytest runs recorded below.
-- [ ] File committed as `AI_USAGE.md` in the repository root.
+- [x] File committed as `AI_USAGE.md` in the repository root.
 
 ---
 
