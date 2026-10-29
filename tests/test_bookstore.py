@@ -98,7 +98,7 @@ def test_regression_catalog_search_limit():
 @pytest.mark.slow
 def test_slow_bulk_import_performance():
     """Author: Olary. Slow: tests performance of bulk importing many products."""
-    time.sleep(1.0) # Simulating a slow operation
+    time.sleep(5.0)  # Increased delay to simulate heavy processing
     cat = Catalog()
     c = Cart(cat)
     products = [(i, f"Book {i}", 10) for i in range(50)]
@@ -108,9 +108,30 @@ def test_slow_bulk_import_performance():
 @pytest.mark.slow
 def test_slow_catalog_heavy_search():
     """Author: Chan, Aye. Slow: simulates heavy catalog search filtering."""
-    time.sleep(1.0)
+    time.sleep(6.0)  # Increased delay to simulate heavy filtering
     cat = Catalog()
     for i in range(100):
         cat.add_product(i, f"Item {i}", 10)
     results = cat.search("Item")
     assert len(results) == 10
+
+
+# ---- BONUS: MULTI-MARKER TEST WITH JUSTIFICATION (+10 Marks) ----
+
+@pytest.mark.smoke
+@pytest.mark.slow
+def test_bonus_comprehensive_system_smoke_and_slow():
+    """Author: Team X-Panda. 
+    Justification: This test carries both the 'smoke' and 'slow' markers because 
+    it acts as a vital end-to-end core system sanity check (smoke) verifying cart 
+    aggregation, but it also processes a large-scale dataset with an extended delay, 
+    making it resource-intensive and time-consuming (slow).
+    """
+    time.sleep(6.0)  # Increased delay
+    cat = Catalog()
+    for i in range(50):
+        cat.add_product(i, f"Item {i}", 20)
+    c = Cart(cat)
+    for i in range(5):
+        c.add(i)
+    assert c.total() == 100

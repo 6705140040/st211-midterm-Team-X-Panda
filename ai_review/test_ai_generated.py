@@ -58,3 +58,5 @@ def test_search_is_limited_to_ten_results():
     for i in range(20):
         cat.add_product(i, "match", 1)
     assert len(cat.search("match")) <= 10
+
+
